@@ -184,7 +184,7 @@ class Model:
             raise NeuralError("Core ML prediction failed (no NSError details available)")
         # Iterate native NSSet via NSArray indexing; Rubicon may leave NSSet
         # wrapped as ObjCInstance even after py_from_ns conversion.
-        names = result.featureNames.allObjects
+        names = result.featureNames.allObjects()
         output = {}
         for index in range(int(names.count)):
             name = names.objectAtIndex_(index)
