@@ -138,7 +138,7 @@ class Model:
         result = {}
         for name in features:
             desc = features.objectForKey_(name)
-            info = {"type": int(desc.type), "optional": bool(desc.optional)}
+            info = {"type": int(desc.type), "optional": bool(desc.isOptional)}
             if int(desc.type) == _ARRAY:
                 info["shape"] = [int(n) for n in desc.multiArrayConstraint.shape]
                 info["dtype"] = int(desc.multiArrayConstraint.dataType)
