@@ -182,11 +182,16 @@ class Model:
         result = self._model.predictionFromFeatures_error_(provider, None)
         if result is None:
             raise NeuralError("Core ML prediction failed (no NSError details available)")
-        # NSSet/NSArray wrappers are not guaranteed to be Python iterable.
-        names = self._py(result.featureNames)
-        return {str(name): _from_feature(
-                    result.featureValueForName_(self._ns(name)), self._py)
-                for name in names}
+        # Iterate native NSSet via NSArray indexing; Rubicon may leave NSSet
+        # wrapped as ObjCInstance even after py_from_ns conversion.
+        names = result.featureNames.allObjects
+        output = {}
+        for index in range(int(names.count)):
+            name = names.objectAtIndex_(index)
+            output[str(self._py(name))] = _from_feature(
+                result.featureValueForName_(name), self._py
+            )
+        return output
 
     __call__ = predict
 
