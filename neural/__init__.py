@@ -186,7 +186,7 @@ class Model:
         # wrapped as ObjCInstance even after py_from_ns conversion.
         names = result.featureNames.allObjects()
         output = {}
-        for index in range(int(names.count)):
+        for index in range(int(names.count())):
             name = names.objectAtIndex_(index)
             output[str(self._py(name))] = _from_feature(
                 result.featureValueForName_(name), self._py
