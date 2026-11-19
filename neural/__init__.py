@@ -76,7 +76,7 @@ def _to_feature(value, description, ObjCClass, ns):
     if t != _ARRAY:
         raise NeuralError("Only scalar, string and multiarray inputs are supported")
     _, flat = _shape_and_flat(value)
-    constraint = description.multiArrayConstraint
+    constraint = description.multiArrayConstraint()
     shape = [int(n) for n in constraint.shape]
     count = 1
     for dim in shape:
@@ -140,8 +140,9 @@ class Model:
             desc = features.objectForKey_(name)
             info = {"type": int(desc.type), "optional": bool(desc.isOptional)}
             if int(desc.type) == _ARRAY:
-                info["shape"] = [int(n) for n in desc.multiArrayConstraint.shape]
-                info["dtype"] = int(desc.multiArrayConstraint.dataType)
+                constraint = desc.multiArrayConstraint()
+                info["shape"] = [int(n) for n in constraint.shape]
+                info["dtype"] = int(constraint.dataType)
             result[self._py(name)] = info
         return result
 
