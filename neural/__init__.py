@@ -13,7 +13,7 @@ class NeuralError(RuntimeError):
     """Core ML could not load a model or perform a prediction."""
 
 
-_COMPUTE = {"all": 0, "cpu": 1, "cpu_gpu": 2, "cpu_ne": 3}
+_COMPUTE = {"all": 2, "cpu": 0, "cpu_gpu": 1, "cpu_ne": 3}
 # MLFeatureType values from CoreML/MLFeatureValue.h
 _INT, _DOUBLE, _STRING, _IMAGE, _ARRAY, _DICT, _SEQ = 1, 2, 3, 4, 5, 6, 7
 # MLMultiArrayDataType values from CoreML/MLMultiArray.h
