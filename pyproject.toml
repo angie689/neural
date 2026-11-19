@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "angie-neural"
+version = "0.1.0"
+description = "Experimental standalone Python to Apple Core ML bridge"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["rubicon-objc>=0.5"]
+
+[tool.setuptools]
+packages = ["neural"]
