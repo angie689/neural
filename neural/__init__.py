@@ -169,16 +169,24 @@ class Model:
             native[name] = _to_feature(
                 value, desc.objectForKey_(self._ns(name)), self._objc, self._ns
             )
+        # ns_from_py cannot recursively convert a dict containing ObjCInstance
+        # MLFeatureValue objects. Build a native NSDictionary explicitly.
+        native_dict = self._objc("NSMutableDictionary").dictionary()
+        for name, feature in native.items():
+            native_dict.setObject_forKey_(feature, self._ns(name))
         provider = self._objc("MLDictionaryFeatureProvider").alloc().initWithDictionary_error_(
-            self._ns(native), None
+            native_dict, None
         )
         if provider is None:
             raise NeuralError("failed to create input provider")
         result = self._model.predictionFromFeatures_error_(provider, None)
         if result is None:
             raise NeuralError("Core ML prediction failed (no NSError details available)")
-        return {self._py(name): _from_feature(result.featureValueForName_(name), self._py)
-                for name in result.featureNames}
+        # NSSet/NSArray wrappers are not guaranteed to be Python iterable.
+        names = self._py(result.featureNames)
+        return {str(name): _from_feature(
+                    result.featureValueForName_(self._ns(name)), self._py)
+                for name in names}
 
     __call__ = predict
 
