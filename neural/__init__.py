@@ -45,6 +45,16 @@ def available():
         return False
 
 
+
+def _objc_integer(value):
+    """Convert Python ints or NSNumber dimension objects from Rubicon."""
+    if isinstance(value, (int, float)):
+        return int(value)
+    number = value.longLongValue
+    return int(number() if callable(number) else number)
+
+
+
 def _shape_and_flat(value):
     if hasattr(value, "tolist"):
         value = value.tolist()
@@ -77,7 +87,7 @@ def _to_feature(value, description, ObjCClass, ns):
         raise NeuralError("Only scalar, string and multiarray inputs are supported")
     _, flat = _shape_and_flat(value)
     constraint = description.multiArrayConstraint()
-    shape = [int(n) for n in constraint.shape]
+    shape = [_objc_integer(n) for n in constraint.shape]
     count = 1
     for dim in shape:
         count *= dim
@@ -109,12 +119,12 @@ def _from_feature(feature, py):
         return py(feature.dictionaryValue)
     if t == _ARRAY:
         arr = feature.multiArrayValue
-        shape = [int(n) for n in arr.shape]
+        shape = [_objc_integer(n) for n in arr.shape]
         is_int = int(arr.dataType) == _I32
         values = [
             int(py(arr.objectAtIndexedSubscript_(i))) if is_int
             else float(py(arr.objectAtIndexedSubscript_(i)))
-            for i in range(int(arr.count))
+            for i in range(_objc_integer(arr.count))
         ]
         def reshape(dims, offset):
             if not dims:
@@ -141,7 +151,7 @@ class Model:
             info = {"type": int(desc.type), "optional": bool(desc.isOptional)}
             if int(desc.type) == _ARRAY:
                 constraint = desc.multiArrayConstraint()
-                info["shape"] = [int(n) for n in constraint.shape]
+                info["shape"] = [_objc_integer(n) for n in constraint.shape]
                 info["dtype"] = int(constraint.dataType)
             result[self._py(name)] = info
         return result
