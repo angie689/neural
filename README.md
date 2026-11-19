@@ -62,3 +62,25 @@ If `import rubicon.objc` fails, try `pip install rubicon-objc`. If Core ML canno
 ### Why not just use the Objective-C C-API module?
 
 A compiled `_neural.m` module must be linked and registered with a host's embedded interpreter. This package instead attempts the Objective-C calls dynamically so it can live in a separate GitHub repo and be imported with no app source edits.
+
+
+## Real neural-network test (XOR)
+
+Run `examples/make_xor_model.py` to generate `XORNeuralNetwork.mlmodel`, or download the generated model file from the companion chat attachment. Import the model into PyPhone's Files.
+
+This is a real three-layer computation: **Dense(2→2) → ReLU → Dense(2→1)**, with fixed weights. It calculates binary XOR using two hidden neurons, not an LLM. It can run on Core ML but does not establish Neural Engine hardware execution.
+
+```python
+import neural, importlib, traceback
+importlib.reload(neural)
+model = neural.load("XORNeuralNetwork.mlmodel")
+print(model.inputs)
+for x in ([0, 0], [0, 1], [1, 0], [1, 1]):
+    try:
+        print(x, model.predict({"input": x}))
+    except Exception:
+        traceback.print_exc()
+        break
+```
+
+Expected output vector: `[0.0]`, `[1.0]`, `[1.0]`, `[0.0]` (minor FP rounding possible). **This model has not been validated on an iPhone or macOS Core ML runtime.**
